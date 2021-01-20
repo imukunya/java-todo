@@ -30,7 +30,16 @@ public class TaskTest {
     }
 
     //helper methods
-    public Task setupNewTask(){
-        return new Task("Mow the lawn");
+    @Test
+    public void addingTaskSetsId() throws Exception {
+        Task task = setupNewTask();
+        int originalTaskId = task.getId();
+
+        assertNotEquals(originalTaskId, task.getId());
+    }
+
+    //define the following once and then call it as above in your tests.
+    public Task setupNewTask() {
+        return new Task("mow the lawn", 1);
     }
 }

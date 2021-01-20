@@ -1,20 +1,22 @@
 package dao;
 
+import models.Category;
 import models.Task;
 import org.sql2o.*;
+
 import java.util.List;
 
-public class Sql20TaskDao implements TaskDAO { //implementing our interface
+public class Sql2oCategoryDao implements CategoryDao {
 
     private final Sql2o sql2o;
 
-    public Sql20TaskDao(Sql2o sql2o){
-        this.sql2o = sql2o; //making the sql2o object available everywhere so we can call methods in it
+    public Sql2oCategoryDao(Sql2o sql2o) {
+        this.sql2o = sql2o;
     }
 
     @Override
-    public void add(Task task) {
-        String sql = "INSERT INTO tasks (description) VALUES (:description)"; //raw sql
+    public void add(Category task) {
+        String sql = "INSERT INTO categories (name) VALUES (:name)"; //raw sql
         try(Connection con = sql2o.open()){ //try to open a connection
             int id = (int) con.createQuery(sql, true) //make a new variable
                     .bind(task) //map my argument onto the query so we can use information from it
@@ -27,38 +29,38 @@ public class Sql20TaskDao implements TaskDAO { //implementing our interface
     }
 
     @Override
-    public List<Task> getAll() {
+    public List<Category> getAll() {
         try(Connection con = sql2o.open()){
-            return con.createQuery("SELECT * FROM tasks") //raw sql
-                    .executeAndFetch(Task.class); //fetch a list
+            return con.createQuery("SELECT * FROM categories") //raw sql
+                    .executeAndFetch(Category.class); //fetch a list
         }
     }
 
     @Override
-    public Task findById(int id) {
+    public Category findById(int id) {
         try(Connection con = sql2o.open()){
-            return con.createQuery("SELECT * FROM tasks WHERE id = :id")
+            return con.createQuery("SELECT * FROM categories WHERE id = :id")
                     .addParameter("id", id) //key/value pair, key must match above
-                    .executeAndFetchFirst(Task.class); //fetch an individual item
+                    .executeAndFetchFirst(Category.class); //fetch an individual item
         }
     }
 
     @Override
-    public void update(int id, String newDescription, int newCategoryId){
-        String sql = "UPDATE tasks SET (description, categoryId) = (:description, :categoryId) WHERE id=:id"; //raw sql
+    public void update(int id, String newDescription){
+        String sql = "UPDATE categories SET name = :name WHERE id=:id";
         try(Connection con = sql2o.open()){
             con.createQuery(sql)
-                    .addParameter("description", newDescription)
-                    .addParameter("categoryId", newCategoryId)
+                    .addParameter("name", newDescription)
                     .addParameter("id", id)
                     .executeUpdate();
         } catch (Sql2oException ex) {
             System.out.println(ex);
         }
     }
+
     @Override
     public void deleteById(int id) {
-        String sql = "DELETE from tasks WHERE id=:id";
+        String sql = "DELETE from categories WHERE id=:id";
         try (Connection con = sql2o.open()) {
             con.createQuery(sql)
                     .addParameter("id", id)
@@ -69,8 +71,8 @@ public class Sql20TaskDao implements TaskDAO { //implementing our interface
     }
 
     @Override
-    public void clearAllTasks() {
-        String sql = "DELETE from tasks";
+    public void clearAllCategories() {
+        String sql = "DELETE from categories";
         try (Connection con = sql2o.open()) {
             con.createQuery(sql)
                     .executeUpdate();
@@ -78,5 +80,20 @@ public class Sql20TaskDao implements TaskDAO { //implementing our interface
             System.out.println(ex);
         }
     }
+    //define the following once and then call it as above in your tests.
+    public Category setupNewCategory(){
+        return new Category("mow the lawn");
+    }
+
+    @Override
+    public List<Task> getAllTasksByCategory(int categoryId) {
+        try(Connection con = sql2o.open()){
+            return con.createQuery("SELECT * FROM tasks WHERE categoryId = :categoryId")
+                    .addParameter("categoryId", categoryId)
+                    .executeAndFetch(Task.class);
+        }
+    }
+
+
 
 }

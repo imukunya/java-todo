@@ -2,7 +2,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import dao.Sql20TaskDao;
 import models.Task;
+import org.sql2o.Sql2o;
 import spark.ModelAndView;
 import spark.template.handlebars.HandlebarsTemplateEngine;
 import static spark.Spark.*;
@@ -10,6 +12,10 @@ import static spark.Spark.*;
 public class App {
     public static void main(String[] args) { //type “psvm + tab” to autocreate this
         staticFileLocation("/public");
+        staticFileLocation("/public");
+        String connectionString = "jdbc:h2:~/todolist.db;INIT=RUNSCRIPT from 'classpath:db/create.sql'";
+        Sql2o sql2o = new Sql2o(connectionString, "", "");
+        Sql20TaskDao taskDao = new Sql20TaskDao(sql2o);
 
         //get: delete all tasks
         get("/tasks/delete", (req, res) -> {
