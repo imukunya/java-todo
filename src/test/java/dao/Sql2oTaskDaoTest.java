@@ -37,4 +37,6 @@ public class Sql2oTaskDaoTest {
         Task foundTask = taskDao.findById(task.getId()); //retrieve
         assertEquals(task, foundTask); //should be the same
     }
+
+
 }
