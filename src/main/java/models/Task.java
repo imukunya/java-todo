@@ -7,16 +7,39 @@ import java.util.Objects;
 public class Task {
 
     private String description;
+    private int categoryId;
     private boolean completed;
     private LocalDateTime createdAt;
     private int id;
-    private int categoryId;
 
     public Task(String description, int categoryId){
         this.description = description;
+        this.categoryId = categoryId;
         this.completed = false;
         this.createdAt = LocalDateTime.now();
+    }
+
+    public int getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Task)) return false;
+        Task task = (Task) o;
+        return completed == task.completed &&
+                id == task.id &&
+                Objects.equals(description, task.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(description, completed, id);
     }
 
     public void setDescription(String description) {
@@ -46,31 +69,5 @@ public class Task {
     public int getId() {
         return id;
     }
-
-    public int getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(int categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return completed == task.completed &&
-                id == task.id &&
-                categoryId == task.categoryId &&
-                Objects.equals(description, task.description) &&
-                Objects.equals(createdAt, task.createdAt);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(description, completed, createdAt, id, categoryId);
-    }
-
 
 }

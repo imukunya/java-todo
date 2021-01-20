@@ -1,52 +1,33 @@
 package dao;
 
-import models.Category;
 import models.Task;
 import org.sql2o.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
 public class Sql2oTaskDaoTest {
-    private static Sql20TaskDao taskDao; //ignore me for now. We'll create this soon.
-    private static Connection conn; //must be sql2o class conn
-    private static Sql2oCategoryDao categoryDao; //these variables are now static.
+    private static Sql2oTaskDao taskDao;                //these variables are now static.
+    private static Connection conn;                     //these variables are now static.
 
-    @BeforeClass //changed to @BeforeClass (run once before running any tests in this file)
-    public static void setUp() throws Exception { //changed to static
-        String connectionString = "jdbc:h2:mem:testing;INIT=RUNSCRIPT from 'classpath:db/create.sql'";
-        Sql2o sql2o = new Sql2o(connectionString, "", "");
-        taskDao = new Sql20TaskDao(sql2o); //ignore me for now
-        categoryDao = new Sql2oCategoryDao(sql2o);
-        conn = sql2o.open(); //keep connection open through entire test so it does not get erased
+    @BeforeClass
+    public static void setUp() throws Exception {
+        String connectionString = "jdbc:postgresql://localhost:5432/todolist_test"; // connect to postgres test database
+        Sql2o sql2o = new Sql2o(connectionString, "v", "1234");         // changed user and pass to null
+        taskDao = new Sql2oTaskDao(sql2o);
+        conn = sql2o.open();                                                        // open connection once before this test file is run
     }
 
     @After
     public void tearDown() throws Exception {
         System.out.println("clearing database");
-        categoryDao.clearAllCategories(); // clear all categories after every test
-        taskDao.clearAllTasks(); // clear all tasks after every test
+        taskDao.clearAllTasks();
+
     }
 
-    @AfterClass // changed to @AfterClass (run once after all tests in this file completed)
-    public static void shutDown() throws Exception { //changed to static and shutDown
-        conn.close(); // close connection once after this entire test file is finished
+    @AfterClass
+    public static void shutDown() throws Exception{
+        conn.close();
         System.out.println("connection closed");
-    }
-
-    @Test
-    public void addingCourseSetsId() throws Exception {
-        Task task = setupNewTask();
-        int originalTaskId = task.getCategoryId();
-        taskDao.add(task);
-        assertNotEquals(originalTaskId, task.getId()); //how does this work?
-    }
-
-    @Test
-    public void existingTasksCanBeFoundById() throws Exception {
-        Task task = setupNewTask();
-        taskDao.add(task);
-        Task foundTask = taskDao.findById(task.getId()); //retrieve
-        assertEquals(task, foundTask); //should be the same
     }
 
     @Test
@@ -54,12 +35,57 @@ public class Sql2oTaskDaoTest {
         Task task = setupNewTask();
         int originalTaskId = task.getId();
         taskDao.add(task);
-        assertNotEquals(originalTaskId, task.getId());
+        assertNotEquals(originalTaskId, task.getId()); //how does this work?
     }
 
-    //define the following once and then call it as above in your tests.
-    public Task setupNewTask(){
-        return new Task("mow the lawn", 1);
+    @Test
+    public void existingTasksCanBeFoundById() throws Exception {
+        Task task = setupNewTask();
+        taskDao.add(task); //add to dao (takes care of saving)
+        Task foundTask = taskDao.findById(task.getId()); //retrieve
+        assertEquals(task, foundTask); //should be the same
+    }
+
+    @Test
+    public void addedTasksAreReturnedFromgetAll() throws Exception {
+        Task task = setupNewTask();
+        taskDao.add(task);
+        assertEquals(1, taskDao.getAll().size());
+    }
+
+    @Test
+    public void noTasksReturnsEmptyList() throws Exception {
+        assertEquals(0, taskDao.getAll().size());
+    }
+
+    @Test
+    public void updateChangesTaskContent() throws Exception {
+        String initialDescription = "mow the lawn";
+        Task task = setupNewTask();
+        taskDao.add(task);
+
+        taskDao.update(task.getId(),"brush the cat", 1);
+        Task updatedTask = taskDao.findById(task.getId()); //why do I need to refind this?
+        assertNotEquals(initialDescription, updatedTask.getDescription());
+    }
+
+    @Test
+    public void deleteByIdDeletesCorrectTask() throws Exception {
+        Task task = setupNewTask();
+        taskDao.add(task);
+        taskDao.deleteById(task.getId());
+        assertEquals(0, taskDao.getAll().size());
+    }
+
+    @Test
+    public void clearAllClearsAll() throws Exception {
+        Task task = setupNewTask();
+        Task otherTask = new Task("brush the cat", 2);
+        taskDao.add(task);
+        taskDao.add(otherTask);
+        int daoSize = taskDao.getAll().size();
+        taskDao.clearAllTasks();
+        assertTrue(daoSize > 0 && daoSize > taskDao.getAll().size()); //this is a little overcomplicated, but illustrates well how we might use `assertTrue` in a different way.
     }
 
     @Test
@@ -70,18 +96,8 @@ public class Sql2oTaskDaoTest {
         assertEquals(originalCatId, taskDao.findById(task.getId()).getCategoryId());
     }
 
-
-    @Test
-    public void updateChangesTaskContent() throws Exception {
-        String initialDescription = "mow the lawn";
-        Task task = new Task (initialDescription, 1);// or use the helper method for easier refactoring
-        taskDao.add(task);
-        taskDao.update(task.getId(),"brush the cat", 1);
-        Task updatedTask = taskDao.findById(task.getId()); //why do I need to refind this?
-        assertNotEquals(initialDescription, updatedTask.getDescription());
+    //define the following once and then call it as above in your tests.
+    public Task setupNewTask(){
+        return new Task("Mow the lawn", 1);
     }
-
-
-
-
 }

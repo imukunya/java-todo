@@ -6,12 +6,16 @@ public class Category {
     private String name;
     private int id;
 
-    public Category(String name){
-
+    public Category(String name) {
+        this.name = name;
     }
 
     public String getName() {
         return name;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void setName(String name) {
@@ -22,13 +26,10 @@ public class Category {
         this.id = id;
     }
 
-    public int getId() {
-        return id;
-    }
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Category)) return false;
         Category category = (Category) o;
         return id == category.id &&
                 Objects.equals(name, category.name);
@@ -38,7 +39,4 @@ public class Category {
     public int hashCode() {
         return Objects.hash(name, id);
     }
-
-
-
 }

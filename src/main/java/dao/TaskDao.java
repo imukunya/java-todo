@@ -3,7 +3,7 @@ package dao;
 import models.Task;
 import java.util.List;
 
-public interface TaskDAO {
+public interface TaskDao {
 
     // LIST
     List<Task> getAll();
@@ -14,10 +14,10 @@ public interface TaskDAO {
     // READ
     Task findById(int id);
 
-    // UPDATE
-     void update(int id, String content, int categoryId);
+    //UPDATE
+    void update(int id, String content, int categoryId);
 
-    // DELETE
-     void deleteById(int id);
-     void clearAllTasks();
+    //DELETE
+    void deleteById(int id);
+    void clearAllTasks();
 }

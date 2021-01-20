@@ -4,20 +4,20 @@ import models.Task;
 import org.sql2o.*;
 import java.util.List;
 
-public class Sql20TaskDao implements TaskDAO { //implementing our interface
+public class Sql2oTaskDao implements TaskDao { //implementing our interface
 
     private final Sql2o sql2o;
 
-    public Sql20TaskDao(Sql2o sql2o){
+    public Sql2oTaskDao(Sql2o sql2o){
         this.sql2o = sql2o; //making the sql2o object available everywhere so we can call methods in it
     }
 
     @Override
     public void add(Task task) {
-        String sql = "INSERT INTO tasks (description) VALUES (:description)"; //raw sql
+        String sql = "INSERT INTO tasks (description, categoryId) VALUES (:description, :categoryId)"; //raw sql
         try(Connection con = sql2o.open()){ //try to open a connection
             int id = (int) con.createQuery(sql, true) //make a new variable
-                    .bind(task) //map my argument onto the query so we can use information from it
+                    .bind(task)
                     .executeUpdate() //run it all
                     .getKey(); //int id is now the row number (row “key”) of db
             task.setId(id); //update object to set id now from database
@@ -45,7 +45,7 @@ public class Sql20TaskDao implements TaskDAO { //implementing our interface
 
     @Override
     public void update(int id, String newDescription, int newCategoryId){
-        String sql = "UPDATE tasks SET (description, categoryId) = (:description, :categoryId) WHERE id=:id"; //raw sql
+        String sql = "UPDATE tasks SET (description, categoryId) = (:description, :categoryId) WHERE id=:id";   //raw sql
         try(Connection con = sql2o.open()){
             con.createQuery(sql)
                     .addParameter("description", newDescription)
@@ -56,6 +56,7 @@ public class Sql20TaskDao implements TaskDAO { //implementing our interface
             System.out.println(ex);
         }
     }
+
     @Override
     public void deleteById(int id) {
         String sql = "DELETE from tasks WHERE id=:id";
@@ -78,5 +79,4 @@ public class Sql20TaskDao implements TaskDAO { //implementing our interface
             System.out.println(ex);
         }
     }
-
 }

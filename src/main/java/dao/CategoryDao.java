@@ -5,7 +5,6 @@ import models.Task;
 import java.util.List;
 
 public interface CategoryDao {
-
     //LIST
     List<Category> getAll();
 
@@ -14,6 +13,7 @@ public interface CategoryDao {
 
     //READ
     Category findById(int id);
+    List<Task> getAllTasksByCategory(int categoryId);
 
     //UPDATE
     void update(int id, String name);
@@ -22,8 +22,4 @@ public interface CategoryDao {
     void deleteById(int id);
     void clearAllCategories();
 
-    List<Task> getAllTasksByCategory(int categoryId);
-
-
 }
-
